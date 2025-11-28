@@ -5,3 +5,4 @@ setuptools==80.9.0
 luma.led-matrix
 spidev
 raspberrypi-tm1637
+pillow
