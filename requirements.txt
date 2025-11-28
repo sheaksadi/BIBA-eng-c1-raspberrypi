@@ -3,4 +3,5 @@ gpiozero==2.0.1
 RPi.GPIO==0.7.1
 setuptools==80.9.0
 luma.led-matrix
+spidev
 raspberrypi-tm1637
