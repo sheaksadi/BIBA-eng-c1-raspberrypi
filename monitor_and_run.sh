@@ -3,6 +3,22 @@
 # Configuration
 PYTHON_SCRIPT="run.py"
 CHECK_INTERVAL=5 # Seconds between checks
+VENV_DIR="venv"
+
+# Ensure venv exists
+if [ ! -d "$VENV_DIR" ]; then
+    echo "Creating virtual environment..."
+    python3 -m venv "$VENV_DIR"
+fi
+
+# Activate venv
+source "$VENV_DIR/bin/activate"
+
+# Install requirements if requirements.txt exists
+if [ -f "requirements.txt" ]; then
+    echo "Installing requirements..."
+    pip install -r requirements.txt
+fi
 
 # Function to run the python script
 start_script() {
