@@ -11,7 +11,7 @@ device.contrast(50)
 
 print("Testing scrolling text...")
 # Correct usage: show_message for scrolling
-show_message(device, "HELLO", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
+show_message(device, "HELLO WORLD", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
 
 device.clear()
 sleep(1)
