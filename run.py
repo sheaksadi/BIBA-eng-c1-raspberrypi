@@ -84,7 +84,7 @@ btn_2.when_pressed = lambda: draw_arrow("2")
 btn_2.when_released = clear_screen
 
 print("Button monitor started. Press and hold buttons...")
-show_message(device, "hehe test ready", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
+show_message(device, "hehe test ready test more", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
 
 # Keep script running
 pause()
