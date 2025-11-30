@@ -1,87 +1,67 @@
 from luma.led_matrix.device import max7219
 from luma.core.interface.serial import spi, noop
 from luma.core.render import canvas
-from luma.core.legacy import text, show_message
-from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT
+from luma.core.legacy import show_message
+from luma.core.legacy.font import proportional, CP437_FONT
+from gpiozero import Button
 from time import sleep
+from signal import pause
 
+# LED Matrix Setup
 serial = spi(port=0, device=0, gpio=noop())
 device = max7219(serial, cascaded=2, block_orientation=0)
 device.contrast(50)
 
-print("Testing scrolling text...")
-# Correct usage: show_message for scrolling
-show_message(device, "HELLO WORLD", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
+# Button Setup
+# UP: 17, DOWN: 27, LEFT: 22, RIGHT: 23, 1: 24, 2: 25
+btn_up = Button(17)
+btn_down = Button(27)
+btn_left = Button(22)
+btn_right = Button(23)
+btn_1 = Button(24)
+btn_2 = Button(25)
 
-device.clear()
-sleep(1)
-
-# dosent look good
-# print("Testing static text with canvas...")
-# # For static text, use canvas and draw.text
-# with canvas(device) as draw:
-#     # Note: default font is very small, might not show well
-#     draw.text((0, 0), "HI", fill="white")
-
-sleep(2)
-device.clear()
-
-print("Drawing custom letters with pixels...")
-# Since text rendering is tricky, let's draw letters manually
-
-def draw_H():
-    """Draw letter H on first matrix"""
+def show_text(text_to_show):
+    print(f"Button pressed: {text_to_show}")
+    # Use canvas for short text to avoid long scrolling delays for simple clicks
+    # or show_message for longer text. For single words "UP", "DOWN", canvas is faster.
     with canvas(device) as draw:
-        # Left vertical line
-        for y in range(8):
-            draw.point((1, y), fill="white")
-        # Right vertical line
-        for y in range(8):
-            draw.point((5, y), fill="white")
-        # Horizontal middle
-        for x in range(1, 6):
-            draw.point((x, 3), fill="white")
+        # Simple centering attempt or just draw at 0,0
+        # The default font is small, let's just draw it.
+        # For better visibility we might want a custom font or just use show_message with fast scroll
+        pass
+    
+    # Let's use show_message for clarity as requested, but make it fast
+    show_message(device, text_to_show, fill="white", font=proportional(CP437_FONT), scroll_delay=0.03)
 
-def draw_I():
-    """Draw letter I on second matrix"""
-    with canvas(device) as draw:
-        # Vertical line
-        for y in range(8):
-            draw.point((10, y), fill="white")
-        # Top horizontal
-        for x in range(9, 12):
-            draw.point((x, 0), fill="white")
-        # Bottom horizontal
-        for x in range(9, 12):
-            draw.point((x, 7), fill="white")
+def on_up():
+    show_text("UP")
 
-def draw_HI():
-    """Draw HI across both matrices"""
-    with canvas(device) as draw:
-        # H on first matrix
-        for y in range(8):
-            draw.point((1, y), fill="white")
-            draw.point((5, y), fill="white")
-        for x in range(1, 6):
-            draw.point((x, 3), fill="white")
-        
-        # I on second matrix  
-        for y in range(8):
-            draw.point((10, y), fill="white")
-        for x in range(9, 12):
-            draw.point((x, 0), fill="white")
-            draw.point((x, 7), fill="white")
+def on_down():
+    show_text("DOWN")
 
-# Test the custom letters
-print("Drawing HI...")
-draw_HI()
-sleep(3)
+def on_left():
+    show_text("LEFT")
 
-device.clear()
+def on_right():
+    show_text("RIGHT")
 
-# Or try scrolling which usually works better
-print("Scrolling message...")
-show_message(device, "HELLO WORLD", fill="white", font=proportional(CP437_FONT), scroll_delay=0.04)
+def on_btn1():
+    show_text("1")
 
-device.clear()
-print("Done!")
+def on_btn2():
+    show_text("2")
+
+# Assign callbacks
+btn_up.when_pressed = on_up
+btn_down.when_pressed = on_down
+btn_left.when_pressed = on_left
+btn_right.when_pressed = on_right
+btn_1.when_pressed = on_btn1
+btn_2.when_pressed = on_btn2
+
+print("Button monitor started. Press buttons...")
+show_message(device, "READY", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
+
+# Keep script running
+pause()
