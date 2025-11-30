@@ -14,6 +14,9 @@ fi
 # Activate venv
 source "$VENV_DIR/bin/activate"
 
+# Set Pin Factory to Native to avoid RPi.GPIO/lgpio issues
+export GPIOZERO_PIN_FACTORY=native
+
 # Install requirements if requirements.txt exists
 if [ -f "requirements.txt" ]; then
     echo "Installing requirements..."

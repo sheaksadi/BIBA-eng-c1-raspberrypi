@@ -7,5 +7,4 @@ spidev
 raspberrypi-tm1637
 pillow
 
-lgpio
-rpi-lgpio
+
