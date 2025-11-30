@@ -22,8 +22,14 @@ if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt --quiet
 fi
 
+# Cleanup any existing instances
+pkill -f "$PYTHON_SCRIPT" || true
+
 # Function to run the python script
 start_script() {
+    # Double check cleanup
+    pkill -f "$PYTHON_SCRIPT" || true
+    sleep 1 # Give time for release
     echo "Starting $PYTHON_SCRIPT..."
     python3 "$PYTHON_SCRIPT" &
     SCRIPT_PID=$!
@@ -48,16 +54,18 @@ REMOTE=$(git rev-parse @{u})
 
 if [ "$LOCAL" != "$REMOTE" ]; then
     echo "Updates found. Pulling..."
+    # Stash local changes to avoid conflicts
+    git stash
     git pull
+    # Restore local changes (if any)
+    git stash pop || true
 fi
 
 start_script
 
-
-
 # Check for root privileges
 if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root (sudo) to access GPIO pins with native factory."
+  echo "Please run as root (sudo) to access GPIO pins."
   echo "Usage: sudo ./monitor_and_run.sh"
   exit 1
 fi
@@ -76,7 +84,9 @@ while true; do
         stop_script
         
         echo "Pulling updates..."
+        git stash
         git pull
+        git stash pop || true
         
         echo "Restarting script..."
         start_script
