@@ -16,8 +16,10 @@ source "$VENV_DIR/bin/activate"
 
 # Install requirements if requirements.txt exists
 if [ -f "requirements.txt" ]; then
-    echo "Installing requirements..."
-    pip install -r requirements.txt
+    # Check if we need to install/upgrade (quietly to avoid spam)
+    # Using --upgrade only if needed might be better, or just install
+    echo "Checking requirements..."
+    pip install -r requirements.txt --quiet
 fi
 
 # Function to run the python script

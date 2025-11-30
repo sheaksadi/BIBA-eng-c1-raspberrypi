@@ -59,38 +59,31 @@ def draw_arrow(direction):
             draw.text((0, 0), "1", fill="white")
         elif direction == "2":
             draw.text((0, 0), "2", fill="white")
-    
-    # Keep the arrow on screen for a moment
-    sleep(0.5)
+
+def clear_screen():
+    print("Button released")
     device.clear()
 
-def on_up():
-    draw_arrow("UP")
+# Assign callbacks for Press (Show) and Release (Clear)
+btn_up.when_pressed = lambda: draw_arrow("UP")
+btn_up.when_released = clear_screen
 
-def on_down():
-    draw_arrow("DOWN")
+btn_down.when_pressed = lambda: draw_arrow("DOWN")
+btn_down.when_released = clear_screen
 
-def on_left():
-    draw_arrow("LEFT")
+btn_left.when_pressed = lambda: draw_arrow("LEFT")
+btn_left.when_released = clear_screen
 
-def on_right():
-    draw_arrow("RIGHT")
+btn_right.when_pressed = lambda: draw_arrow("RIGHT")
+btn_right.when_released = clear_screen
 
-def on_btn1():
-    draw_arrow("1")
+btn_1.when_pressed = lambda: draw_arrow("1")
+btn_1.when_released = clear_screen
 
-def on_btn2():
-    draw_arrow("2")
+btn_2.when_pressed = lambda: draw_arrow("2")
+btn_2.when_released = clear_screen
 
-# Assign callbacks
-btn_up.when_pressed = on_up
-btn_down.when_pressed = on_down
-btn_left.when_pressed = on_left
-btn_right.when_pressed = on_right
-btn_1.when_pressed = on_btn1
-btn_2.when_pressed = on_btn2
-
-print("Button monitor started. Press buttons...")
+print("Button monitor started. Press and hold buttons...")
 show_message(device, "READY", fill="white", font=proportional(CP437_FONT), scroll_delay=0.05)
 
 # Keep script running
