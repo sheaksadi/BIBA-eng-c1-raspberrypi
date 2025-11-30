@@ -14,8 +14,8 @@ fi
 # Activate venv
 source "$VENV_DIR/bin/activate"
 
-# Set Pin Factory to Native to avoid RPi.GPIO/lgpio issues
-export GPIOZERO_PIN_FACTORY=native
+# Set Pin Factory to Mock to bypass hardware errors (for testing)
+export GPIOZERO_PIN_FACTORY=mock
 
 # Install requirements if requirements.txt exists
 if [ -f "requirements.txt" ]; then
