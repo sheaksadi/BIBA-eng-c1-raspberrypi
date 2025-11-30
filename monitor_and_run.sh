@@ -7,14 +7,12 @@ VENV_DIR="venv"
 
 # Ensure venv exists
 if [ ! -d "$VENV_DIR" ]; then
-    echo "Creating virtual environment..."
-    python3 -m venv "$VENV_DIR"
+    echo "Creating virtual environment (with system packages)..."
+    python3 -m venv --system-site-packages "$VENV_DIR"
 fi
 
 # Activate venv
 source "$VENV_DIR/bin/activate"
-
-
 
 # Install requirements if requirements.txt exists
 if [ -f "requirements.txt" ]; then
@@ -52,6 +50,16 @@ if [ "$LOCAL" != "$REMOTE" ]; then
 fi
 
 start_script
+
+# Set Pin Factory to Native to avoid RPi.GPIO/lgpio issues
+export GPIOZERO_PIN_FACTORY=native
+
+# Check for root privileges
+if [ "$EUID" -ne 0 ]; then
+  echo "Please run as root (sudo) to access GPIO pins with native factory."
+  echo "Usage: sudo ./monitor_and_run.sh"
+  exit 1
+fi
 
 # Monitor loop
 while true; do
