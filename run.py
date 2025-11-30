@@ -24,12 +24,12 @@ device.contrast(50)
 # pull_up=True means internal resistor pulls to 3.3V, pressing button connects to Ground (0V).
 print("Initializing buttons (Active Low - Connect to Ground)...")
 # Added bounce_time to filter noise
-btn_up = Button(17, pull_up=True, bounce_time=0.1)
-btn_down = Button(27, pull_up=True, bounce_time=0.1)
-btn_left = Button(22, pull_up=True, bounce_time=0.1)
-btn_right = Button(23, pull_up=True, bounce_time=0.1)
-btn_1 = Button(24, pull_up=True, bounce_time=0.1)
-btn_2 = Button(25, pull_up=True, bounce_time=0.1)
+btn_up = Button(17, pull_up=True, bounce_time=0.02)
+btn_down = Button(27, pull_up=True, bounce_time=0.02)
+btn_left = Button(22, pull_up=True, bounce_time=0.02)
+btn_right = Button(23, pull_up=True, bounce_time=0.02)
+btn_1 = Button(24, pull_up=True, bounce_time=0.02)
+btn_2 = Button(25, pull_up=True, bounce_time=0.02)
 print("Buttons initialized successfully.")
 
 def draw_arrow(direction):
