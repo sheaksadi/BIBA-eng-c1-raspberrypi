@@ -14,12 +14,20 @@ device.contrast(50)
 
 # Button Setup
 # UP: 17, DOWN: 27, LEFT: 22, RIGHT: 23, 1: 24, 2: 25
-btn_up = Button(17)
-btn_down = Button(27)
-btn_left = Button(22)
-btn_right = Button(23)
-btn_1 = Button(24)
-btn_2 = Button(25)
+# Connect one side of button to GPIO, other side to Ground.
+# pull_up=True means internal resistor pulls to 3.3V, pressing button connects to Ground (0V).
+print("Initializing buttons...")
+try:
+    btn_up = Button(17, pull_up=True)
+    btn_down = Button(27, pull_up=True)
+    btn_left = Button(22, pull_up=True)
+    btn_right = Button(23, pull_up=True)
+    btn_1 = Button(24, pull_up=True)
+    btn_2 = Button(25, pull_up=True)
+    print("Buttons initialized successfully.")
+except Exception as e:
+    print(f"Error initializing buttons: {e}")
+    print("Ensure you are running with permissions to access GPIO (e.g. sudo).")
 
 def show_text(text_to_show):
     print(f"Button pressed: {text_to_show}")
