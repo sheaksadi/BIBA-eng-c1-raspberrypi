@@ -106,6 +106,7 @@ def run_game():
             
     except KeyboardInterrupt:
         print("\nExiting...")
+        audio.cleanup()
         device.cleanup() # If method exists, else safe to just exit
         sys.exit(0)
 

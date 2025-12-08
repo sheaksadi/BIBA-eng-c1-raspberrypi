@@ -20,7 +20,43 @@ stop_event = threading.Event()
 TEMPO_MOD = 2.5
 
 # Melodies (Note, Duration in seconds)
-# ... (Tracks unchanged)
+# Tetris Theme A (Korobeiniki)
+TETRIS_THEME = [
+    ('E5', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('C5', 0.1), ('B4', 0.1),
+    ('A4', 0.2), ('A4', 0.1), ('C5', 0.1), ('E5', 0.2), ('D5', 0.1), ('C5', 0.1),
+    ('B4', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('E5', 0.2),
+    ('C5', 0.2), ('A4', 0.2), ('A4', 0.4),
+    # Bridge
+    ('D5', 0.2), ('F5', 0.1), ('A5', 0.2), ('G5', 0.1), ('F5', 0.1),
+    ('E5', 0.3), ('C5', 0.1), ('E5', 0.2), ('D5', 0.1), ('C5', 0.1),
+    ('B4', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('E5', 0.2),
+    ('C5', 0.2), ('A4', 0.2), ('A4', 0.4)
+]
+
+# Simple Snake Tune
+SNAKE_THEME = [
+    ('C4', 0.1), ('E4', 0.1), ('G4', 0.1),
+    ('A4', 0.1), ('G4', 0.1), ('E4', 0.1),
+    ('C4', 0.1), ('E4', 0.1), ('G4', 0.1),
+    ('B3', 0.1), ('D4', 0.1), ('G4', 0.1),
+    ('F4', 0.1), ('D4', 0.1), ('B3', 0.1),
+    ('G3', 0.3)
+]
+
+TRACKS = {
+    'tetris': TETRIS_THEME,
+    'snake': SNAKE_THEME
+}
+
+def cleanup():
+    global enabled
+    enabled = False
+    stop_music()
+    if buzzer_sfx:
+        buzzer_sfx.close()
+    if buzzer_music:
+        buzzer_music.close()
+
 
 def init():
     global buzzer_music, buzzer_sfx, enabled
