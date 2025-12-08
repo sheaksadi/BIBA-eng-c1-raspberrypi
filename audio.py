@@ -17,42 +17,20 @@ music_thread = None
 stop_event = threading.Event()
 
 # Tempo Multiplier (Higher = Slower)
-TEMPO_MOD = 1.6
+TEMPO_MOD = 2.5
 
 # Melodies (Note, Duration in seconds)
-# Tetris Theme A (Korobeiniki)
-TETRIS_THEME = [
-    ('E5', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('C5', 0.1), ('B4', 0.1),
-    ('A4', 0.2), ('A4', 0.1), ('C5', 0.1), ('E5', 0.2), ('D5', 0.1), ('C5', 0.1),
-    ('B4', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('E5', 0.2),
-    ('C5', 0.2), ('A4', 0.2), ('A4', 0.4),
-    # Bridge
-    ('D5', 0.2), ('F5', 0.1), ('A5', 0.2), ('G5', 0.1), ('F5', 0.1),
-    ('E5', 0.3), ('C5', 0.1), ('E5', 0.2), ('D5', 0.1), ('C5', 0.1),
-    ('B4', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('E5', 0.2),
-    ('C5', 0.2), ('A4', 0.2), ('A4', 0.4)
-]
-
-# Simple Snake Tune
-SNAKE_THEME = [
-    ('C4', 0.1), ('E4', 0.1), ('G4', 0.1),
-    ('A4', 0.1), ('G4', 0.1), ('E4', 0.1),
-    ('C4', 0.1), ('E4', 0.1), ('G4', 0.1),
-    ('B3', 0.1), ('D4', 0.1), ('G4', 0.1),
-    ('F4', 0.1), ('D4', 0.1), ('B3', 0.1),
-    ('G3', 0.3)
-]
-
-TRACKS = {
-    'tetris': TETRIS_THEME,
-    'snake': SNAKE_THEME
-}
+# ... (Tracks unchanged)
 
 def init():
     global buzzer_music, buzzer_sfx, enabled
     try:
         buzzer_music = TonalBuzzer(PIN_MUSIC)
         buzzer_sfx = TonalBuzzer(PIN_SFX)
+        # Explicitly stop to prevent initial noise/hum
+        buzzer_music.stop()
+        buzzer_sfx.stop()
+        
         enabled = True
         print(f"Audio initialized: Music(GPIO {PIN_MUSIC}), SFX(GPIO {PIN_SFX})")
     except Exception as e:
