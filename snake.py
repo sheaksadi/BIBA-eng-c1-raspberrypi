@@ -52,14 +52,12 @@ def update(dt, inputs):
 def step():
     global game_over, snake, score
     head = snake[0]
-    new_head = (head[0] + dir[0], head[1] + dir[1])
+    # Move and Wrap around screen
+    new_x = (head[0] + dir[0]) % WIDTH
+    new_y = (head[1] + dir[1]) % HEIGHT
+    new_head = (new_x, new_y)
 
-    # Wall Collision
-    if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
-        game_over = True
-        audio.stop_music()
-        audio.sfx_crash()
-        return
+    # Wall Collision removed (wrapping implemented)
     
     # Self Collision
     if new_head in snake:
