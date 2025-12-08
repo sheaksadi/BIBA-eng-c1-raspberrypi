@@ -4,19 +4,23 @@ import time
 import threading
 
 # Constants
-PIN_BUZZER = 18
+PIN_MUSIC = 18
+PIN_SFX = 13
 
-buzzer = None
+buzzer_music = None
+buzzer_sfx = None
 enabled = False
 
 # Music State
 current_track = None
 music_thread = None
 stop_event = threading.Event()
-sfx_lock = threading.Lock()
+
+# Tempo Multiplier (Higher = Slower)
+TEMPO_MOD = 1.6
 
 # Melodies (Note, Duration in seconds)
-# Tetris Theme A (Korobeiniki) simplified
+# Tetris Theme A (Korobeiniki)
 TETRIS_THEME = [
     ('E5', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('C5', 0.1), ('B4', 0.1),
     ('A4', 0.2), ('A4', 0.1), ('C5', 0.1), ('E5', 0.2), ('D5', 0.1), ('C5', 0.1),
@@ -29,7 +33,7 @@ TETRIS_THEME = [
     ('C5', 0.2), ('A4', 0.2), ('A4', 0.4)
 ]
 
-# Simple Snake Tune (Fast paced loop)
+# Simple Snake Tune
 SNAKE_THEME = [
     ('C4', 0.1), ('E4', 0.1), ('G4', 0.1),
     ('A4', 0.1), ('G4', 0.1), ('E4', 0.1),
@@ -45,11 +49,12 @@ TRACKS = {
 }
 
 def init():
-    global buzzer, enabled
+    global buzzer_music, buzzer_sfx, enabled
     try:
-        buzzer = TonalBuzzer(PIN_BUZZER)
+        buzzer_music = TonalBuzzer(PIN_MUSIC)
+        buzzer_sfx = TonalBuzzer(PIN_SFX)
         enabled = True
-        print("Audio initialized on GPIO", PIN_BUZZER)
+        print(f"Audio initialized: Music(GPIO {PIN_MUSIC}), SFX(GPIO {PIN_SFX})")
     except Exception as e:
         print(f"Audio init failed: {e}")
         enabled = False
@@ -72,8 +77,8 @@ def stop_music():
         stop_event.set()
         music_thread.join(timeout=0.2)
     
-    if buzzer:
-        buzzer.stop()
+    if buzzer_music:
+        buzzer_music.stop()
 
 def _music_loop():
     idx = 0
@@ -81,46 +86,35 @@ def _music_loop():
     while not stop_event.is_set() and track:
         note, duration = track[idx]
         
-        # Only play if SFX isn't locking
-        with sfx_lock:
-            try:
-                buzzer.play(Tone(note))
-            except: pass
+        # Apply Tempo
+        final_duration = duration * TEMPO_MOD
+        
+        try:
+            buzzer_music.play(Tone(note))
+        except: pass
             
         # Wait for duration
-        # We check stop_event frequently for responsiveness
-        end_time = time.time() + duration * 0.9 # Little gap between notes
+        end_time = time.time() + final_duration * 0.9
         while time.time() < end_time:
             if stop_event.is_set(): return
             time.sleep(0.01)
             
-        # Brief silence between notes for articulation
-        with sfx_lock:
-            try:
-                buzzer.stop()
-            except: pass
-        time.sleep(duration * 0.1)
+        try:
+            buzzer_music.stop()
+        except: pass
+        time.sleep(final_duration * 0.1)
             
         idx = (idx + 1) % len(track)
 
 def play_tone(frequency, duration):
-    if not enabled or not buzzer: return
+    if not enabled or not buzzer_sfx: return
     
     def _t():
-        # Acquire lock to pause music writing to buzzer (music thread will just wait/sleep)
-        # Note: Ideally music thread pauses, but here we just overwrite
-        # Locking ensures we don't interleave commands too fast
-        with sfx_lock: 
-            try:
-                buzzer.play(Tone(frequency))
-            except: pass
-            
-        time.sleep(duration)
-        
-        with sfx_lock:
-            try:
-                buzzer.stop()
-            except: pass
+        try:
+            buzzer_sfx.play(Tone(frequency))
+            time.sleep(duration)
+            buzzer_sfx.stop()
+        except: pass
             
     threading.Thread(target=_t, daemon=True).start()
 
@@ -133,17 +127,15 @@ def sfx_crash(): play_tone(110, 0.5)       # A2
 def sfx_line(): 
     if not enabled: return
     def _t():
-        with sfx_lock:
-            buzzer.play(Tone(523.25))
-        time.sleep(0.1)
-        with sfx_lock:
-            buzzer.play(Tone(659.25))
-        time.sleep(0.1)
-        with sfx_lock:
-            buzzer.play(Tone(783.99))
-        time.sleep(0.2)
-        with sfx_lock:
-            buzzer.stop()
+        try:
+            buzzer_sfx.play(Tone(523.25))
+            time.sleep(0.1)
+            buzzer_sfx.play(Tone(659.25))
+            time.sleep(0.1)
+            buzzer_sfx.play(Tone(783.99))
+            time.sleep(0.2)
+            buzzer_sfx.stop()
+        except: pass
     threading.Thread(target=_t, daemon=True).start()
 
 def sfx_select(): play_tone(880, 0.1)
