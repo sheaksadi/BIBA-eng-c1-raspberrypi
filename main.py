@@ -38,12 +38,14 @@ def update(dt, inputs):
         # Let's add a way to return to menu: 'LEFT' + 'RIGHT' together?
         if inputs['LEFT'] and inputs['RIGHT']:
              current_state = STATE_MENU
+             audio.stop_music()
              win_pause(0.5)
 
     elif current_state == STATE_TETRIS:
         tetris.update(dt, inputs)
         if inputs['LEFT'] and inputs['RIGHT']:
              current_state = STATE_MENU
+             audio.stop_music()
              win_pause(0.5)
 
 def draw():

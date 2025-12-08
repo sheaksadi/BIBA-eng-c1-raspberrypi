@@ -29,6 +29,8 @@ def init():
     board = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
     game_over = False
     spawn_piece()
+    audio.play_music('tetris')
+
 
 def spawn_piece():
     global current_piece, current_x, current_y, game_over
@@ -39,6 +41,7 @@ def spawn_piece():
     
     if check_collision(current_piece, current_x, current_y):
         game_over = True
+        audio.stop_music()
         audio.sfx_crash()
 
 def check_collision(piece, off_x, off_y):

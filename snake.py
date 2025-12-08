@@ -21,6 +21,7 @@ def init():
     timer = 0
     score = 0
     spawn_food()
+    audio.play_music('snake')
 
 def spawn_food():
     global food
@@ -56,12 +57,14 @@ def step():
     # Wall Collision
     if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
         game_over = True
+        audio.stop_music()
         audio.sfx_crash()
         return
     
     # Self Collision
     if new_head in snake:
         game_over = True
+        audio.stop_music()
         audio.sfx_crash()
         return
 

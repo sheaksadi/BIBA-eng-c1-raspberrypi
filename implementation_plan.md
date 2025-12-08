@@ -1,25 +1,25 @@
-# Hardware Changes
-- Add Buzzer to **GPIO 18** (PWM capable).
+# audio.py Updates
+1. **Define Melodies**:
+   - `TETRIS_THEME`: List of `(note, duration)` tuples.
+   - `SNAKE_THEME`: List of `(note, duration)` tuples.
+2. **Music Loop**:
+   - A daemon thread that iterates through the current melody.
+   - Checks `current_track` global.
+   - Handles `stop_music`.
+3. **Conflict Resolution**:
+   - `sfx_*` functions currently `play()`, `sleep()`, `stop()`.
+   - `stop()` kills the PWM.
+   - If music is running, `stop()` creates silence.
+   - Enhancement: `sfx` sets a `sfx_playing` flag? Or music thread re-asserts tone? 
+   - Simple approach: Just loop. If SFX cuts it, so be it.
 
-# Software Changes
-## 1. New File: `audio.py`
-- Uses `gpiozero.TonalBuzzer`.
-- Defines sounds: `SND_MOVE`, `SND_ROTATE`, `SND_EAT`, `SND_CRASH`, `SND_LINE`, `SND_LEVELUP`.
-- Simple queue or fire-and-forget interface.
-
-## 2. Update `run.py`
-- Initialize `audio.py`.
-- In main loop, process audio queue (if needed) or let `gpiozero` handle background.
-
-## 3. Update `snake.py`
-- **Speed**: Change `SPEED` from 0.15 to **0.25** or **0.3**.
-- **Sound**: Play `SND_EAT` when food eaten, `SND_CRASH` on game over.
-
-## 4. Update `tetris.py`
-- **Rotation Fix**: Implement `prev_up` state to detect *rising edge* of the button press. Only rotate once per press.
-- **Sound**: Play `SND_ROTATE`, `SND_MOVE`, `SND_DROP`, `SND_LINE`.
-
-## 5. Update `main.py`
-- Menu navigation sounds.
-- Pass audio context to games? Or `audio.play()` is global? 
-- Impl: `import audio` in games is easiest if `audio.init(pin)` is called in `run.py`.
+# Game Updates
+- **main.py**:
+  - `update_menu`: `audio.stop_music()` (or play Menu theme?)
+  - When starting game: `audio.play_music('snake')` or `audio.play_music('tetris')`.
+- **snake.py**:
+  - `init`: `audio.play_music('snake')`.
+  - `game_over`: `audio.stop_music()`.
+- **tetris.py**:
+  - `init`: `audio.play_music('tetris')`.
+  - `game_over`: `audio.stop_music()`.
