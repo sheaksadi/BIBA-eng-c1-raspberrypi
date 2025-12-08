@@ -1,17 +1,28 @@
-# run.py Changes
-# In render_grid_to_device(grid):
-# Swap x and y mapping.
-# Logical Y maps to Physical X (Chain axis).
-# Logical X maps to Physical Y (Block axis).
+# Architecture
+- main.py:
+    - State Machine (MENU, SNAKE, TETRIS)
+    - Shared Grid (8x16)
+    - update(): delegates to current_state.update()
+    - draw(): clears grid, delegates to current_state.draw(grid)
 
-# Logic:
-# if y < 8: (Top Screen -> Device 1)
-#    phys_x = 8 + y
-#    phys_y = x
-# else: (Bottom Screen -> Device 0)
-#    phys_x = (y - 8)
-#    phys_y = x
+- snake.py:
+    - Standard Snake Logic
+    - Input: D-Pad
+    - Fail Condition: Wall or Self collision -> State: GameOver -> Any Key -> Reset
 
-# main.py Changes
-# Update init() to draw '1' and '2'.
-# Update draw_num to take position.
+- tetris.py:
+    - 8x16 Board
+    - Standard Shapes (I, O, T, S, Z, J, L)
+    - Input: Left/Right (Move), Up (Rotate), Down (Fast Drop)
+    - Line clearing
+    - Fail Condition: Top out
+
+# main.py Menu
+- "1" -> Tetris
+- "2" -> Snake
+- Display "T" or "S" or "1"/"2" via bitmaps to indicate choice.
+
+# File Operations
+1. Create snake.py
+2. Create tetris.py
+3. Modify main.py

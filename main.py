@@ -1,95 +1,118 @@
-# main.py
+import snake
+import tetris
 
 # Dimensions
 WIDTH = 8
 HEIGHT = 16
 
 # The 2D Array (Screen Buffer)
-# 0 = Off, 1 = On
 grid = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
 
-# Bitmaps (Optional, for demo)
-NUMBERS = {
-    '1': [[0,0,1,0,0],[0,1,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,1,1,1,0]],
-    '2': [[0,1,1,1,0],[0,0,0,0,1],[0,1,1,1,0],[0,1,0,0,0],[0,1,1,1,1]]
-}
+# States
+STATE_MENU = 0
+STATE_SNAKE = 1
+STATE_TETRIS = 2
+
+current_state = STATE_MENU
 
 def init():
     """Called once at startup."""
-    print("Game Initialized")
-    clear_grid()
-    # Startup: 1 on Top, 2 on Bottom
-    draw_num('1', x=2, y=2)      # Top (y approx 0-7)
-    draw_num('2', x=2, y=10)     # Bottom (y approx 8-15)
-
+    print("Main System Initialized")
+    # Initialize sub-games just in case
+    # tetris.init() # We'll init when entering state
+    # snake.init()
+    
 def update(dt, inputs):
-    """
-    Called every frame.
-    dt: Time delta in seconds.
-    inputs: Dictionary of button states (e.g., {'UP': True, 'DOWN': False}).
-    """
-    # Simple Demo Logic: Show Arrow/Number when held
-    active = False
+    global current_state
+
+    # Global Reset to Menu (Button 1+2 held? Or maybe just rely on logic)
+    # For now, let's keep it simple.
     
-    if inputs['UP']:
-        draw_arrow_up()
-        active = True
-    elif inputs['DOWN']:
-        draw_arrow_down()
-        active = True
-    elif inputs['LEFT']:
-        draw_arrow_left()
-        active = True
-    elif inputs['RIGHT']:
-        draw_arrow_right()
-        active = True
-    elif inputs['1']:
-        draw_num('1', x=2, y=2)
-        active = True
-    elif inputs['2']:
-        draw_num('2', x=2, y=10)
-        active = True
-        
-    if not active:
-        # If we want the startup numbers to persist until pressed, 
-        # we need state. But user says "on start up display...".
-        # Assuming pressing buttons overrides it.
-        # To make startup persist until input, we need a "touched" flag.
-        # For now, let's clear if no input, which implies startup vanishes on first frame?
-        # Ideally, we only clear if keys *were* pressed or we want blank when idle.
-        # User code previously cleared on release.
-        # Let's keep existing "Default Clear" behavior but we need to check if we just started.
-        # Actually user ran "pause()" before so it stayed.
-        # Here we run a loop.
-        # Let's add a dirty check or just let it vanish on first keypress?
-        # User request: "on start up display...".
-        # If I clear_grid() here immediately when no buttons are pressed, it disappears instantly.
-        # I should output the grid once in init, and only clear if inputs change?
-        # Let's clear ONLY if buttons are NOT pressed but were? 
-        # Simplest: If ANY button pressed -> Draw. Else -> Clear. 
-        # This wipes the startup numbers instantly. 
-        # I will add a 'started' flag to keep numbers until first press.
-        pass
-    
-    # Logic to keep startup display until first press:
-    is_any_pressed = any(inputs.values())
-    if is_any_pressed:
-        if not hasattr(update, "has_pressed"):
-            update.has_pressed = True
-    
-    if is_any_pressed:
-       pass # Drawing handled above
-    elif getattr(update, "has_pressed", False):
-       clear_grid()
+    if current_state == STATE_MENU:
+        update_menu(dt, inputs)
+    elif current_state == STATE_SNAKE:
+        snake.update(dt, inputs)
+        # Exit condition? Maybe Button 1+2 Long Press?
+        # For now, if Game Over, '1' or '2' restarts in snake.py.
+        # Let's add a way to return to menu: 'LEFT' + 'RIGHT' together?
+        if inputs['LEFT'] and inputs['RIGHT']:
+             current_state = STATE_MENU
+             win_pause(0.5)
+
+    elif current_state == STATE_TETRIS:
+        tetris.update(dt, inputs)
+        if inputs['LEFT'] and inputs['RIGHT']:
+             current_state = STATE_MENU
+             win_pause(0.5)
 
 def draw():
-    """
-    Called every frame after update. 
-    Use this to finalize the grid if needed.
-    """
-    pass
+    clear_grid()
+    
+    if current_state == STATE_MENU:
+        draw_menu()
+    elif current_state == STATE_SNAKE:
+        snake.draw(grid)
+    elif current_state == STATE_TETRIS:
+        tetris.draw(grid)
 
-# --- Helper Functions ---
+# --- Menu Logic ---
+
+menu_selection = 0 # 0=Snake, 1=Tetris (Simple toggle)
+
+def update_menu(dt, inputs):
+    global current_state, menu_selection
+    
+    # Selection
+    if inputs['UP'] or inputs['LEFT']:
+        menu_selection = 0
+    elif inputs['DOWN'] or inputs['RIGHT']:
+        menu_selection = 1
+        
+    # Confirm
+    if inputs['1'] or inputs['2']:
+        if menu_selection == 0:
+            print("Starting Snake")
+            snake.init()
+            current_state = STATE_SNAKE
+        else:
+            print("Starting Tetris")
+            tetris.init()
+            current_state = STATE_TETRIS
+        win_pause(0.5)
+
+def draw_menu():
+    # Draw 'S' for Snake on Top
+    # Draw 'T' for Tetris on Bottom
+    # Highlight selection with a dot or box?
+    
+    # S Bitmap
+    s_bmp = [
+        [0,1,1,1,0],
+        [1,0,0,0,0],
+        [0,1,1,0,0],
+        [0,0,0,1,0],
+        [1,1,1,0,0]
+    ]
+    draw_bitmap(2, 1, s_bmp)
+    
+    # T Bitmap
+    t_bmp = [
+        [1,1,1,1,1],
+        [0,0,1,0,0],
+        [0,0,1,0,0],
+        [0,0,1,0,0],
+        [0,0,1,0,0]
+    ]
+    draw_bitmap(2, 9, t_bmp)
+    
+    # Selection Indicator (Arrow or Dot)
+    if menu_selection == 0:
+        set_pixel(0, 3, 1) # Next to S
+    else:
+        set_pixel(0, 11, 1) # Next to T
+
+
+# --- Common Helpers ---
 
 def clear_grid():
     for y in range(HEIGHT):
@@ -108,34 +131,7 @@ def draw_bitmap(x, y, bitmap):
             if bitmap[r][c]:
                 set_pixel(x + c, y + r, 1)
 
-def draw_arrow_up():
-    clear_grid()
-    # Draw on Top Screen (y=0..7)
-    for i in range(5): set_pixel(3, 6-i, 1)
-    set_pixel(2, 3, 1); set_pixel(4, 3, 1); set_pixel(3, 2, 1)
+import time
+def win_pause(sec):
+    time.sleep(sec)
 
-def draw_arrow_down():
-    clear_grid()
-    # Draw on Bottom Screen (y=8..15)
-    base_y = 8
-    for i in range(5): set_pixel(3, base_y+1+i, 1)
-    set_pixel(2, base_y+4, 1); set_pixel(4, base_y+4, 1); set_pixel(3, base_y+5, 1)
-
-def draw_arrow_left():
-    clear_grid()
-    # Middle ish (Top Screen for consistency with UP/LEFT mapping?)
-    # Arrow pointing Left
-    for i in range(5): set_pixel(5-i, 4, 1)
-    set_pixel(2, 3, 1); set_pixel(2, 5, 1); set_pixel(1, 4, 1)
-
-def draw_arrow_right():
-    clear_grid()
-    # Right Arrow
-    for i in range(5): set_pixel(2+i, 4, 1)
-    set_pixel(5, 3, 1); set_pixel(5, 5, 1); set_pixel(6, 4, 1)
-
-def draw_num(n, x=2, y=2):
-    # clear_grid() # Don't clear here to allow multiple numbers? 
-    # User logic implies one at a time usually, but startup has two.
-    # Manual clear in update handles interaction.
-    draw_bitmap(x, y, NUMBERS[n])
