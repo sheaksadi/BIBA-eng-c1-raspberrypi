@@ -8,9 +8,12 @@ import sys
 
 # Import the game logic
 import main
+import audio
 
 # --- Hardware Setup ---
 print("Initializing Hardware...")
+audio.init()
+
 
 # LED Matrix
 try:

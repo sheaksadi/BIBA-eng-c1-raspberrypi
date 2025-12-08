@@ -1,5 +1,6 @@
 import snake
 import tetris
+import audio
 
 # Dimensions
 WIDTH = 8
@@ -64,12 +65,17 @@ def update_menu(dt, inputs):
     
     # Selection
     if inputs['UP'] or inputs['LEFT']:
-        menu_selection = 0
+        if menu_selection != 0:
+            menu_selection = 0
+            audio.sfx_move()
     elif inputs['DOWN'] or inputs['RIGHT']:
-        menu_selection = 1
+        if menu_selection != 1:
+            menu_selection = 1
+            audio.sfx_move()
         
     # Confirm
     if inputs['1'] or inputs['2']:
+        audio.sfx_select()
         if menu_selection == 0:
             print("Starting Snake")
             snake.init()

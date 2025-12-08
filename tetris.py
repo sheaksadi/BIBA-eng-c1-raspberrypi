@@ -1,4 +1,5 @@
 import random
+import audio
 
 WIDTH = 8
 HEIGHT = 16
@@ -38,6 +39,7 @@ def spawn_piece():
     
     if check_collision(current_piece, current_x, current_y):
         game_over = True
+        audio.sfx_crash()
 
 def check_collision(piece, off_x, off_y):
     for y, row in enumerate(piece):
@@ -62,6 +64,7 @@ def lock_piece():
             if val:
                 if 0 <= current_y + y < HEIGHT:
                     board[current_y + y][current_x + x] = 1
+    audio.sfx_drop()
     clear_lines()
     spawn_piece()
 
@@ -69,23 +72,25 @@ def clear_lines():
     global board
     new_board = [row for row in board if any(v == 0 for v in row)]
     lines_cleared = HEIGHT - len(new_board)
-    for _ in range(lines_cleared):
-        new_board.insert(0, [0] * WIDTH)
-    board = new_board
+    if lines_cleared > 0:
+        audio.sfx_line()
+        for _ in range(lines_cleared):
+            new_board.insert(0, [0] * WIDTH)
+        board = new_board
 
 last_input_time = 0
 INPUT_DELAY = 0.1
+prev_inputs = {}
 
 def update(dt, inputs):
-    global timer, current_x, current_y, current_piece, last_input_time, fast_drop, game_over
+    global timer, current_x, current_y, current_piece, last_input_time, fast_drop, game_over, prev_inputs
     
     if game_over:
         if inputs['1'] or inputs['2']:
             init()
         return
 
-    # Input Handling (with delay to prevent super fast movement)
-    # Using simple delay for l/r/rotate
+    # Input Handling (Left/Right uses delay, Up uses Edge)
     last_input_time += dt
     if last_input_time > INPUT_DELAY:
         dx = 0
@@ -96,12 +101,20 @@ def update(dt, inputs):
             if not check_collision(current_piece, current_x + dx, current_y):
                 current_x += dx
                 last_input_time = 0
-        
-        if inputs['UP']: # Rotate
-            rotated = rotate_piece(current_piece)
-            if not check_collision(rotated, current_x, current_y):
-                current_piece = rotated
-                last_input_time = 0
+                audio.sfx_move()
+    
+    # Rotate (Edge Detection: Only if UP is pressed NOW and wasn't BEFORE)
+    is_up = inputs['UP']
+    was_up = prev_inputs.get('UP', False)
+    
+    if is_up and not was_up:
+        rotated = rotate_piece(current_piece)
+        if not check_collision(rotated, current_x, current_y):
+            current_piece = rotated
+            audio.sfx_rotate()
+    
+    # Update Prev Inputs
+    prev_inputs = inputs.copy()
 
     # Gravity
     fast_drop = inputs['DOWN']

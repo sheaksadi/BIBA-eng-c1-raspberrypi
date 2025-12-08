@@ -1,8 +1,9 @@
 import random
+import audio
 
 WIDTH = 8
 HEIGHT = 16
-SPEED = 0.15
+SPEED = 0.3 # Slower speed (was 0.15)
 
 snake = []
 dir = (0, 0)
@@ -14,7 +15,8 @@ score = 0
 def init():
     global snake, dir, food, game_over, timer, score
     snake = [(4, 10), (4, 11), (4, 12)]
-    dir = (0, -1) # Start moving Up
+    # ... rest same ...
+    dir = (0, -1)
     game_over = False
     timer = 0
     score = 0
@@ -54,17 +56,20 @@ def step():
     # Wall Collision
     if new_head[0] < 0 or new_head[0] >= WIDTH or new_head[1] < 0 or new_head[1] >= HEIGHT:
         game_over = True
+        audio.sfx_crash()
         return
     
     # Self Collision
     if new_head in snake:
         game_over = True
+        audio.sfx_crash()
         return
 
     snake.insert(0, new_head)
     
     if new_head == food:
         score += 1
+        audio.sfx_eat()
         spawn_food()
         # Speed up slightly every 5 points
         global SPEED
