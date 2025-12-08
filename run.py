@@ -47,35 +47,27 @@ def render_grid_to_device(grid):
     """
     Maps the logical 8x16 grid (grid[y][x]) to the Luma 16x8 canvas.
     
-    Correction Logic:
-    - User reported 90-deg rotation issues (Left->Up, Right->Down).
-    - Fix: Swap X and Y axes.
-    - Grid Y [0..15] -> Device X [0..15]
-    - Grid X [0..7]  -> Device Y [0..7]
-    - Device Mapping:
-      - Top Screen (y < 8) -> Device 1 (Chain indices 8..15).
-        - Logic: phys_x (along chain) = 8 + logical_y
-        - phys_y (across block) = logical_x
-      - Bottom Screen (y >= 8) -> Device 0 (Chain indices 0..7).
-        - Logic: phys_x = logical_y - 8
-        - phys_y = logical_x
+    Correction Logic V2:
+    - User says '1' (Top Logical) appeared on Bottom Screen -> Previous mapping was inverted.
+      - Previous: Top->Device 1, Bottom->Device 0.
+      - New: Top->Device 0 (Phys X 0..7), Bottom->Device 1 (Phys X 8..15).
+    - User says "Mirrored" -> Needs 'flipped'.
+      - Since we swapped axes for rotation, mapping Logical X to Phys Y.
+      - Invert Phys Y: 7 - logical_x.
+    
+    Simplified Mapping:
+    - Logical Y (0..15) -> Physical X (0..15).
+    - Logical X (0..7)  -> Physical Y (0..7) inverted.
     """
     
     with canvas(device) as draw:
         for y in range(len(grid)):
             for x in range(len(grid[0])):
                 if grid[y][x]:
-                    # Axis Swap Transformation
-                    if y < 8:
-                        # Top Screen (Device 1)
-                        # Map logical y (0..7) to phys_x (8..15)
-                        phys_x = y + 8
-                        phys_y = x 
-                    else:
-                        # Bottom Screen (Device 0)
-                        # Map logical y (8..15) to phys_x (0..7)
-                        phys_x = y - 8
-                        phys_y = x
+                    # Axis Swap + Global Mapping
+                    # Assuming the chain aligns perfectly with Y-axis now.
+                    phys_x = y
+                    phys_y = 7 - x
                         
                     # Safety check
                     if 0 <= phys_x < 16 and 0 <= phys_y < 8:
