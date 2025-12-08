@@ -20,6 +20,7 @@ stop_event = threading.Event()
 TEMPO_MOD = 2.5
 
 # Melodies (Note, Duration in seconds)
+
 # Tetris Theme A (Korobeiniki)
 TETRIS_THEME = [
     ('E5', 0.2), ('B4', 0.1), ('C5', 0.1), ('D5', 0.2), ('C5', 0.1), ('B4', 0.1),
@@ -63,29 +64,6 @@ TRACKS = {
     'invaders': INVADERS_THEME
 }
 
-def cleanup():
-    # ... (unchanged)
-
-def init():
-    # ... (unchanged)
-
-# ... (play_music helpers are same) ...
-
-# Ensure sfx_* are updated
-def sfx_jump(): play_tone(600, 0.05)
-def sfx_shoot(): play_tone(880, 0.05)
-def sfx_explosion(): play_tone(100, 0.2)
-
-
-def cleanup():
-    global enabled
-    enabled = False
-    stop_music()
-    if buzzer_sfx:
-        buzzer_sfx.close()
-    if buzzer_music:
-        buzzer_music.close()
-
 def init():
     global buzzer_music, buzzer_sfx, enabled
     try:
@@ -100,6 +78,15 @@ def init():
     except Exception as e:
         print(f"Audio init failed: {e}")
         enabled = False
+
+def cleanup():
+    global enabled
+    enabled = False
+    stop_music()
+    if buzzer_sfx:
+        buzzer_sfx.close()
+    if buzzer_music:
+        buzzer_music.close()
 
 def play_music(track_name):
     global current_track, music_thread, stop_event
@@ -181,3 +168,6 @@ def sfx_line():
     threading.Thread(target=_t, daemon=True).start()
 
 def sfx_select(): play_tone(880, 0.1)
+def sfx_jump(): play_tone(600, 0.05)
+def sfx_shoot(): play_tone(880, 0.05)
+def sfx_explosion(): play_tone(100, 0.2)
