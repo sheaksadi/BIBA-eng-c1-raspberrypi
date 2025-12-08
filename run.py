@@ -47,33 +47,35 @@ def render_grid_to_device(grid):
     """
     Maps the logical 8x16 grid (grid[y][x]) to the Luma 16x8 canvas.
     
-    Correction Logic (based on User feedback):
-    - Device 0 (Bottom Screen) should show Logical Rows 8-15.
-    - Device 1 (Top Screen) should show Logical Rows 0-7.
-    
-    Luma Chaining:
-    - Typically Device 0 is x=0..7, Device 1 is x=8..15.
-    
-    So:
-    - Logical y in 8..15 -> Device 0 (x=0..7). Map x->x, y->(y-8).
-    - Logical y in 0..7  -> Device 1 (x=8..15). Map x->(x+8), y->y.
+    Correction Logic:
+    - User reported 90-deg rotation issues (Left->Up, Right->Down).
+    - Fix: Swap X and Y axes.
+    - Grid Y [0..15] -> Device X [0..15]
+    - Grid X [0..7]  -> Device Y [0..7]
+    - Device Mapping:
+      - Top Screen (y < 8) -> Device 1 (Chain indices 8..15).
+        - Logic: phys_x (along chain) = 8 + logical_y
+        - phys_y (across block) = logical_x
+      - Bottom Screen (y >= 8) -> Device 0 (Chain indices 0..7).
+        - Logic: phys_x = logical_y - 8
+        - phys_y = logical_x
     """
     
     with canvas(device) as draw:
         for y in range(len(grid)):
             for x in range(len(grid[0])):
                 if grid[y][x]:
+                    # Axis Swap Transformation
                     if y < 8:
                         # Top Screen (Device 1)
-                        # Map logical x to x+8 (second block)
-                        phys_x = x + 8
-                        phys_y = y
+                        # Map logical y (0..7) to phys_x (8..15)
+                        phys_x = y + 8
+                        phys_y = x 
                     else:
                         # Bottom Screen (Device 0)
-                        # Map logical x to x (first block)
-                        # Map logical y to y-8 (relative to block)
-                        phys_x = x
-                        phys_y = y - 8
+                        # Map logical y (8..15) to phys_x (0..7)
+                        phys_x = y - 8
+                        phys_y = x
                         
                     # Safety check
                     if 0 <= phys_x < 16 and 0 <= phys_y < 8:

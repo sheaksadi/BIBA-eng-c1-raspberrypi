@@ -18,6 +18,9 @@ def init():
     """Called once at startup."""
     print("Game Initialized")
     clear_grid()
+    # Startup: 1 on Top, 2 on Bottom
+    draw_num('1', x=2, y=2)      # Top (y approx 0-7)
+    draw_num('2', x=2, y=10)     # Bottom (y approx 8-15)
 
 def update(dt, inputs):
     """
@@ -25,10 +28,6 @@ def update(dt, inputs):
     dt: Time delta in seconds.
     inputs: Dictionary of button states (e.g., {'UP': True, 'DOWN': False}).
     """
-    # clear_grid() # Optional: Clear every frame or persist? 
-                 # User's previous code cleared on release. 
-                 # Let's clear here if we want immediate feedback style.
-    
     # Simple Demo Logic: Show Arrow/Number when held
     active = False
     
@@ -45,14 +44,43 @@ def update(dt, inputs):
         draw_arrow_right()
         active = True
     elif inputs['1']:
-        draw_num('1')
+        draw_num('1', x=2, y=2)
         active = True
     elif inputs['2']:
-        draw_num('2')
+        draw_num('2', x=2, y=10)
         active = True
         
     if not active:
-        clear_grid()
+        # If we want the startup numbers to persist until pressed, 
+        # we need state. But user says "on start up display...".
+        # Assuming pressing buttons overrides it.
+        # To make startup persist until input, we need a "touched" flag.
+        # For now, let's clear if no input, which implies startup vanishes on first frame?
+        # Ideally, we only clear if keys *were* pressed or we want blank when idle.
+        # User code previously cleared on release.
+        # Let's keep existing "Default Clear" behavior but we need to check if we just started.
+        # Actually user ran "pause()" before so it stayed.
+        # Here we run a loop.
+        # Let's add a dirty check or just let it vanish on first keypress?
+        # User request: "on start up display...".
+        # If I clear_grid() here immediately when no buttons are pressed, it disappears instantly.
+        # I should output the grid once in init, and only clear if inputs change?
+        # Let's clear ONLY if buttons are NOT pressed but were? 
+        # Simplest: If ANY button pressed -> Draw. Else -> Clear. 
+        # This wipes the startup numbers instantly. 
+        # I will add a 'started' flag to keep numbers until first press.
+        pass
+    
+    # Logic to keep startup display until first press:
+    is_any_pressed = any(inputs.values())
+    if is_any_pressed:
+        if not hasattr(update, "has_pressed"):
+            update.has_pressed = True
+    
+    if is_any_pressed:
+       pass # Drawing handled above
+    elif getattr(update, "has_pressed", False):
+       clear_grid()
 
 def draw():
     """
@@ -95,15 +123,19 @@ def draw_arrow_down():
 
 def draw_arrow_left():
     clear_grid()
-    # Middle ish
+    # Middle ish (Top Screen for consistency with UP/LEFT mapping?)
+    # Arrow pointing Left
     for i in range(5): set_pixel(5-i, 4, 1)
     set_pixel(2, 3, 1); set_pixel(2, 5, 1); set_pixel(1, 4, 1)
 
 def draw_arrow_right():
     clear_grid()
+    # Right Arrow
     for i in range(5): set_pixel(2+i, 4, 1)
     set_pixel(5, 3, 1); set_pixel(5, 5, 1); set_pixel(6, 4, 1)
 
-def draw_num(n):
-    clear_grid()
-    draw_bitmap(2, 2, NUMBERS[n])
+def draw_num(n, x=2, y=2):
+    # clear_grid() # Don't clear here to allow multiple numbers? 
+    # User logic implies one at a time usually, but startup has two.
+    # Manual clear in update handles interaction.
+    draw_bitmap(x, y, NUMBERS[n])
