@@ -86,7 +86,6 @@ def cleanup():
     if buzzer_music:
         buzzer_music.close()
 
-
 def init():
     global buzzer_music, buzzer_sfx, enabled
     try:
