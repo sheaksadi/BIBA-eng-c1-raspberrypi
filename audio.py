@@ -43,10 +43,39 @@ SNAKE_THEME = [
     ('G3', 0.3)
 ]
 
+# Frogger Theme (Simplified)
+FROGGER_THEME = [
+    ('C4', 0.1), ('D4', 0.1), ('E4', 0.1), ('F4', 0.1),
+    ('G4', 0.2), ('C4', 0.2), ('A4', 0.1), ('G4', 0.1), ('F4', 0.1), ('E4', 0.1),
+    ('D4', 0.2), ('C4', 0.2), ('F4', 0.1), ('E4', 0.1), ('D4', 0.1), ('C4', 0.1),
+    ('G3', 0.4)
+]
+
+# Space Invaders (Ominous 4-note loop)
+INVADERS_THEME = [
+    ('A2', 0.5), ('B2', 0.5), ('C3', 0.5), ('B2', 0.5)
+]
+
 TRACKS = {
     'tetris': TETRIS_THEME,
-    'snake': SNAKE_THEME
+    'snake': SNAKE_THEME,
+    'frogger': FROGGER_THEME,
+    'invaders': INVADERS_THEME
 }
+
+def cleanup():
+    # ... (unchanged)
+
+def init():
+    # ... (unchanged)
+
+# ... (play_music helpers are same) ...
+
+# Ensure sfx_* are updated
+def sfx_jump(): play_tone(600, 0.05)
+def sfx_shoot(): play_tone(880, 0.05)
+def sfx_explosion(): play_tone(100, 0.2)
+
 
 def cleanup():
     global enabled
