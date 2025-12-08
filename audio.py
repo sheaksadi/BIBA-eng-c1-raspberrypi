@@ -44,12 +44,12 @@ SNAKE_THEME = [
     ('G3', 0.3)
 ]
 
-# Frogger Theme (Simplified)
-FROGGER_THEME = [
-    ('C4', 0.1), ('D4', 0.1), ('E4', 0.1), ('F4', 0.1),
-    ('G4', 0.2), ('C4', 0.2), ('A4', 0.1), ('G4', 0.1), ('F4', 0.1), ('E4', 0.1),
-    ('D4', 0.2), ('C4', 0.2), ('F4', 0.1), ('E4', 0.1), ('D4', 0.1), ('C4', 0.1),
-    ('G3', 0.4)
+# Block Breaker Theme (Upbeat)
+BREAKOUT_THEME = [
+    ('E4', 0.1), ('G4', 0.1), ('B4', 0.1), ('E5', 0.2),
+    ('D5', 0.1), ('B4', 0.1), ('G4', 0.1), ('E4', 0.2),
+    ('F4', 0.1), ('A4', 0.1), ('C5', 0.1), ('F5', 0.2),
+    ('E5', 0.1), ('C5', 0.1), ('A4', 0.1), ('F4', 0.2)
 ]
 
 # Space Invaders (Ominous 4-note loop)
@@ -60,7 +60,7 @@ INVADERS_THEME = [
 TRACKS = {
     'tetris': TETRIS_THEME,
     'snake': SNAKE_THEME,
-    'frogger': FROGGER_THEME,
+    'breakout': BREAKOUT_THEME,
     'invaders': INVADERS_THEME
 }
 

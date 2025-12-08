@@ -1,6 +1,6 @@
 import snake
 import tetris
-import frogger
+import block_breaker
 import space_invaders
 import audio
 
@@ -15,7 +15,7 @@ grid = [[0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
 STATE_MENU = 0
 STATE_SNAKE = 1
 STATE_TETRIS = 2
-STATE_FROGGER = 3
+STATE_BREAKOUT = 3
 STATE_INVADERS = 4
 
 current_state = STATE_MENU
@@ -27,9 +27,6 @@ def init():
 def update(dt, inputs):
     global current_state
 
-    # Global Reset to Menu (Button 1+2 held? Or maybe just rely on logic)
-    # For now, let's keep it simple.
-    
     if current_state == STATE_MENU:
         update_menu(dt, inputs)
     elif current_state == STATE_SNAKE:
@@ -38,8 +35,8 @@ def update(dt, inputs):
     elif current_state == STATE_TETRIS:
         tetris.update(dt, inputs)
         check_exit(inputs)
-    elif current_state == STATE_FROGGER:
-        frogger.update(dt, inputs)
+    elif current_state == STATE_BREAKOUT:
+        block_breaker.update(dt, inputs)
         check_exit(inputs)
     elif current_state == STATE_INVADERS:
         space_invaders.update(dt, inputs)
@@ -47,10 +44,11 @@ def update(dt, inputs):
 
 def check_exit(inputs):
     global current_state
-    if inputs['LEFT'] and inputs['RIGHT']:
-         current_state = STATE_MENU
-         audio.stop_music()
-         win_pause(0.5)
+    # Button 2 = Back to Menu
+    if inputs['2']:
+        current_state = STATE_MENU
+        audio.stop_music()
+        win_pause(0.3)
 
 def draw():
     clear_grid()
@@ -61,15 +59,15 @@ def draw():
         snake.draw(grid)
     elif current_state == STATE_TETRIS:
         tetris.draw(grid)
-    elif current_state == STATE_FROGGER:
-        frogger.draw(grid)
+    elif current_state == STATE_BREAKOUT:
+        block_breaker.draw(grid)
     elif current_state == STATE_INVADERS:
         space_invaders.draw(grid)
 
 # --- Menu Logic ---
 
 menu_selection = 0 
-# 0=Snake, 1=Tetris, 2=Frogger, 3=Invaders
+# 0=Snake, 1=Tetris, 2=Breakout, 3=Invaders
 
 def update_menu(dt, inputs):
     global current_state, menu_selection
@@ -83,12 +81,10 @@ def update_menu(dt, inputs):
         
     if old_sel != menu_selection:
         audio.sfx_move()
-        # Initial delay to prevent super fast scrolling? 
-        # Inputs are typically polled fast. Assuming run.py sleep(0.016) is fine.
-        win_pause(0.15) # Small debounce
+        win_pause(0.15)
         
-    # Confirm
-    if inputs['1'] or inputs['2']:
+    # Button 1 = Confirm/Enter
+    if inputs['1']:
         audio.sfx_select()
         if menu_selection == 0:
             print("Starting Snake")
@@ -99,9 +95,9 @@ def update_menu(dt, inputs):
             tetris.init()
             current_state = STATE_TETRIS
         elif menu_selection == 2:
-            print("Starting Frogger")
-            frogger.init()
-            current_state = STATE_FROGGER
+            print("Starting Block Breaker")
+            block_breaker.init()
+            current_state = STATE_BREAKOUT
         elif menu_selection == 3:
             print("Starting Space Invaders")
             space_invaders.init()
@@ -109,18 +105,10 @@ def update_menu(dt, inputs):
         win_pause(0.5)
 
 def draw_menu():
-    # Draw Menu: 4 Icons if they fit?
-    # Screen is 8x16.
-    # Let's show 2 items at a time? Or just one big letter?
-    # Simpler: 4 Small Icons vertically.
-    # Snake: S-like shape (y=1)
-    # Tetris: T-like shape (y=5)
-    # Frogger: F-like shape (y=9)
-    # Invaders: I/Alien-like shape (y=13)
+    # 4 Icons vertically: S, T, B, I
+    # Selection indicator on left
     
-    # Selection Box
     sel_y = 1 + (menu_selection * 4)
-    # Set pixel to left of selected item
     set_pixel(0, sel_y+1, 1)
     
     # Snake Icon (S)
@@ -133,15 +121,14 @@ def draw_menu():
     set_pixel(3, 6, 1)
     set_pixel(3, 7, 1)
 
-    # Frogger (F)
-    set_pixel(2, 9, 1); set_pixel(3, 9, 1); set_pixel(4, 9, 1)
-    set_pixel(2, 10, 1); set_pixel(3, 10, 1)
-    set_pixel(2, 11, 1)
+    # Block Breaker (B)
+    set_pixel(2, 9, 1); set_pixel(3, 9, 1)
+    set_pixel(2, 10, 1); set_pixel(4, 10, 1)
+    set_pixel(2, 11, 1); set_pixel(3, 11, 1)
     
-    # Invaders (Space Ship / Alien)
-    # Mini Alien
+    # Invaders (Alien)
     set_pixel(2, 14, 1); set_pixel(4, 14, 1)
-    set_pixel(3, 13, 1); 
+    set_pixel(3, 13, 1)
     set_pixel(2, 15, 1); set_pixel(3, 15, 1); set_pixel(4, 15, 1)
 
 # --- Common Helpers ---
@@ -166,4 +153,5 @@ def draw_bitmap(x, y, bitmap):
 import time
 def win_pause(sec):
     time.sleep(sec)
+
 
